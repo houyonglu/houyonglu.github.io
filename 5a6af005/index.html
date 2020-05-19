@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> CSS 新特性中的层叠上下文及影响 · Houyonglu</title><meta name="description" content="CSS 新特性中的层叠上下文及影响 - Houyonglu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/logo.svg"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://houyonglu.github.io/atom.xml" title="Houyonglu"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/logo.svg" alt="logo"></a></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">CSS 新特性中的层叠上下文及影响</h1><div title="2018-01-26" class="post-info">Jan 26, 2018</div><div class="post-content"><h2 id="CSS中层叠上下文"><a href="#CSS中层叠上下文" class="headerlink" title="CSS中层叠上下文"></a>CSS中层叠上下文</h2><p>形成条件：</p>
+<ul>
+<li>根元素 （<code>HTML</code>）</li>
+<li><code>z-index</code> 值不为 <code>auto</code> 的绝对/相对定位</li>
+<li>一个 <code>z-index</code> 值不为 <code>auto</code> 的 <code>Flex</code> 项目（<code>flex item</code>）</li>
+<li><code>position: fixed</code></li>
+<li><code>opacity</code> 属性值小于 <code>1</code></li>
+<li><code>transform</code> 属性值不为 <code>none</code></li>
+<li><code>mix-blend-mode</code>性值不为 <code>normal</code></li>
+<li><code>filter</code> 值不为 <code>none</code></li>
+<li><code>will-change</code> 中指定了任意 CSS 属性</li>
+<li><code>mix-blend-mode</code> 属性值不为 <code>normal</code></li>
+<li><code>-webkit-overflow-scrolling</code> 属性被设置 <code>touch</code></li>
+</ul>
+<p>总结：</p>
+<ul>
+<li>给一个 HTML 元素定位和 <code>z-index</code> 赋值创建一个层叠上下文。</li>
+<li>层叠上下文可以包含在其他层叠上下文中，并且一起创建一个有层级的层叠上下文。</li>
+<li>每个层叠上下文完全独立于它的兄弟元素：当处理层叠时只考虑子元素。</li>
+<li>每个层叠上下文是自包含的：当元素的内容发生层叠后，整个该元素将会在父层叠上下文中按顺序进行层叠。</li>
+</ul>
+<p>内容来自: <a href="https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Understanding_z_index/The_stacking_context" target="_blank" rel="noopener">层叠上下文</a></p>
+<h2 id="对普通元素的影响"><a href="#对普通元素的影响" class="headerlink" title="对普通元素的影响"></a>对普通元素的影响</h2><ul>
+<li>提升元素的层叠顺序</li>
+<li>限制 <code>position: fixed</code> 的跟随效果</li>
+<li>改变 <code>overflow</code> 对 <code>absolute</code> 元素的限制</li>
+<li>限制 <code>absolute</code> 元素的 <code>100%</code> 宽度大小</li>
+<li>进行变换时造成变换元素的父元素闪烁</li>
+</ul>
+<p><a href="https://codepen.io/anon/pen/ZvgOLO" target="_blank" rel="noopener">Check which CSS3 features the browser recognizes</a> 是我制作的一个简单 Demo，用于展示 CSS 新特性是如何提升元素的层叠顺序的。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"parent"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"transform"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"sibling"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 显式设置父元素的层叠顺序 */</span></span><br><span class="line"><span class="selector-class">.parent</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: relative;</span><br><span class="line">  <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 显式设置变换元素的层叠顺序 */</span></span><br><span class="line"><span class="selector-class">.transform</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: relative;</span><br><span class="line">  <span class="attribute">z-index</span>: -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 显式设置变换元素的兄弟元素的层叠顺序 */</span></span><br><span class="line"><span class="selector-class">.sibling</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: relative;</span><br><span class="line">  <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</div></article></div></main><footer><div class="paginator"><a href="/5acf0437/" class="prev">PREV</a><a href="/5a508a26/" class="next">NEXT</a></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-141892784-1",'auto');ga('send','pageview');</script></body></html>
